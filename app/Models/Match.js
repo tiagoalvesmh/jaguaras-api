@@ -10,7 +10,11 @@ class Match extends Model {
 
     court () {
         return this.belongsTo('App/Models/Court')
-    }    
+    }
+
+    schedule () {
+        return this.hasMany('App/Models/Schedule')
+    }
 }
 
 module.exports = Match

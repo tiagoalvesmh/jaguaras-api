@@ -18,6 +18,9 @@ Route.group(() => {
   Route.resource('matches', 'MatchController')
     .apiOnly()
   
+  Route.resource('schedules', 'ScheduleController')
+    .apiOnly()
+  
   Route.resource('clubs', 'ClubController')
     .apiOnly()
 }).middleware('auth')

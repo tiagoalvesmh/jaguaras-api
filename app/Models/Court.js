@@ -12,6 +12,10 @@ class Court extends Model {
         return this.hasMany('App/Models/Match')
     }
 
+    schedules () {
+        return this.belongsToMany('/App/Models/Schedule')
+    }
+
     tags () {
         
     }
