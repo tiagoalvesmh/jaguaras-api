@@ -24,6 +24,10 @@ class User extends Model {
   tokens () {
     return this.hasMany('App/Models/Token')
   }
+
+  matches () {
+    return this.belongsToMany('App/Models/Match')
+  }
 }
 
 module.exports = User

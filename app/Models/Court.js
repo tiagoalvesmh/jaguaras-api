@@ -9,7 +9,7 @@ class Court extends Model {
     }
 
     matches () {
-
+        return this.hasMany('App/Models/Match')
     }
 
     tags () {

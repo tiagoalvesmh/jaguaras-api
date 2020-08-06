@@ -1,92 +1,70 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Match = use('App/Models/Match')
 
-/**
- * Resourceful controller for interacting with matches
- */
 class MatchController {
-  /**
-   * Show a list of all matches.
-   * GET matches
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+  
   async index ({ request, response, view }) {
+    const match = Match
+      .query()
+      .with("users", builder => {
+        builder.select(["nickname", "power"])
+      })
+      .fetch()
+
+    return match
   }
 
-  /**
-   * Render a form to be used for creating a new match.
-   * GET matches/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+
+  async store ({ request, auth, response }) {
+    const {users, ...data} = request
+      .only(["court_id", "title", "date", "start_time", "end_time", "open", "description", "users"])
+
+    const match = await Match.create({owner_id: auth.user.id, ...data})
+
+    if(users && users.length > 0){
+      await match.users().attach(users)
+      await match.load('users')
+    }
+    return match
   }
 
-  /**
-   * Create/save a new match.
-   * POST matches
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
-  }
 
-  /**
-   * Display a single match.
-   * GET matches/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
   async show ({ params, request, response, view }) {
+    const match = await Match.findOrFail(params.id)
+
+    await match.load('users')
+
+    return match
   }
 
-  /**
-   * Render a form to update an existing match.
-   * GET matches/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
 
-  /**
-   * Update match details.
-   * PUT or PATCH matches/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async update ({ params, request, response }) {
+    const match = await Match.findOrFail(params.id)
+
+    const {users, ...data} = request.only(["court_id", "owner_id", "title", "date", "start_time", "end_time", "open", "description", "users"])
+
+    match.merge(data)
+
+    await match.save()
+
+    if(users && users.length > 0){
+      await match.users().sync(users)
+      await match.load('users')
+    }
+
+    return match
   }
 
-  /**
-   * Delete a match with id.
-   * DELETE matches/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+ 
+  async destroy ({ params, auth, request, response }) {
+    const match = await Match.findOrFail(params.id)
+    
+    if(match.user_id != auth.user.id){
+      return response.status(401)
+    }
+
+    await match.delete()
   }
 }
 
