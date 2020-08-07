@@ -12,14 +12,19 @@ class CourtController {
 
 
   async store ({ request, response }) {
-    const { schedules, ...data } = request
-      .only(["gym_id", "name", "price", "latitude", "longitude", "description", "schedules"])
+    const { schedules, tags, ...data } = request
+      .only(["gym_id", "name", "price", "latitude", "longitude", "description", "schedules", "tags"])
 
     const court = await Court.create(data)
 
     if(schedules && schedules.length > 0){
       await court.schedules().attach(schedules)
       await court.load('schedules')
+    }
+
+    if (tags && tags.length > 0){
+      await court.tags().attach(tags)
+      await court.load('tags')
     }
 
     return court
@@ -36,11 +41,24 @@ class CourtController {
   async update ({ params, request, response }) {
     const court = await Court.findOrFail(params.id)
 
-    const data = request.only(["gym_id", "name", "price", "latitude", "longitude", "description"])
+    const { schedules, tags, ...data } = request
+      .only(["gym_id", "name", "price", "latitude", "longitude", "description", "schedules", "tags"])
 
     court.merge(data)
 
     await court.save()
+
+    if(schedules && schedules.length > 0){
+      await court.schedules().detach()
+      await court.schedules().attach(schedules)
+      await court.load('schedules')
+    }
+
+    if (tags && tags.length > 0){
+      await court.tags().detach()
+      await court.tags().attach(tags)
+      await court.load('tags')
+    }
 
     return court
   }

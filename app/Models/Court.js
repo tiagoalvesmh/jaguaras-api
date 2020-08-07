@@ -17,7 +17,7 @@ class Court extends Model {
     }
 
     tags () {
-        
+        return this.belongsToMany('App/Models/Tag')
     }
 }
 
