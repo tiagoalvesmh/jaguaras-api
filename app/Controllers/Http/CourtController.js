@@ -12,9 +12,15 @@ class CourtController {
 
 
   async store ({ request, response }) {
-    const data = request.only(["gym_id", "name", "price", "latitude", "longitude", "description"])
+    const { schedules, ...data } = request
+      .only(["gym_id", "name", "price", "latitude", "longitude", "description", "schedules"])
 
     const court = await Court.create(data)
+
+    if(schedules && schedules.length > 0){
+      await court.schedules().attach(schedules)
+      await court.load('schedules')
+    }
 
     return court
   }

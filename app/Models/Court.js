@@ -13,7 +13,7 @@ class Court extends Model {
     }
 
     schedules () {
-        return this.belongsToMany('/App/Models/Schedule')
+        return this.belongsToMany('App/Models/Schedule')
     }
 
     tags () {
