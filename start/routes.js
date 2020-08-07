@@ -21,6 +21,9 @@ Route.group(() => {
   Route.resource('schedules', 'ScheduleController')
     .apiOnly()
   
+  Route.resource('tags', 'TagController')
+    .apiOnly()
+  
   Route.resource('clubs', 'ClubController')
     .apiOnly()
 }).middleware('auth')
